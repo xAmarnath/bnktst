@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>בנק ישראל דיגיטל — אימות אבטחה</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-deep: #06090d;
+            --bg-card: rgba(12, 17, 24, 0.88);
+            --gold: #c9a84c;
+            --gold-light: #e8d48b;
+            --gold-dim: #8a6f2f;
+            --text-primary: #e8e4dc;
+            --text-secondary: #7a7668;
+            --text-muted: #4a463e;
+            --border: #1e2730;
+            --border-gold: rgba(201, 168, 76, 0.2);
+            --danger: #c44b4b;
+            --success: #4b9c6b;
+        }
+
+        html, body { height: 100%; }
+
+        body {
+            font-family: 'Heebo', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ─── BANKING BACKGROUND ─── */
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background:
+                url('https://images.unsplash.com/photo-1541354329998-f4d9a9f9297f?w=1400&q=80') center center / cover no-repeat;
+            filter: brightness(0.15) saturate(0.35);
+        }
+
+        .bg-layer::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(180deg,
+                    rgba(6,9,13,0.93) 0%,
+                    rgba(6,9,13,0.55) 45%,
+                    rgba(6,9,13,0.88) 100%
+                );
+        }
+
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image:
+                linear-gradient(rgba(201,168,76,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(201,168,76,0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+        }
+
+        /* Vertical gold accent lines */
+        .decor-line {
+            position: fixed;
+            width: 1px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .decor-line-1 { height: 55vh; top: 0; left: 14%; background: linear-gradient(180deg, rgba(201,168,76,0.05), transparent); }
+        .decor-line-2 { height: 45vh; top: 12vh; right: 18%; background: linear-gradient(180deg, rgba(201,168,76,0.04), transparent); }
+        .decor-line-3 { height: 60vh; bottom: 0; left: 42%; background: linear-gradient(0deg, rgba(201,168,76,0.04), transparent); }
+
+        /* ─── LAYOUT ─── */
+        .page-wrap {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            flex: 1;
+            max-width: 480px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* ─── TOP BAR ─── */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            background: rgba(6,9,13,0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 34px;
+            height: 34px;
+            border: 1.5px solid var(--gold);
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon::after {
+            content: '₪';
+            font-size: 16px;
+            color: var(--gold);
+            font-weight: 700;
+        }
+
+        .logo-text {
+            font-family: 'Rubik', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-primary);
+        }
+
+        .logo-text span { color: var(--gold); }
+
+        .secure-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            color: var(--success);
+            background: rgba(75,156,107,0.07);
+            padding: 4px 10px;
+            border-radius: 16px;
+            border: 1px solid rgba(75,156,107,0.12);
+        }
+
+        .secure-badge::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse-dot 2s ease infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* ─── STEPS ─── */
+        .steps {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 24px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            color: var(--text-muted);
+            transition: color 0.3s;
+        }
+
+        .step.active { color: var(--gold); }
+        .step.completed { color: var(--success); }
+
+        .step-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 1.5px solid currentColor;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .step.active .step-num {
+            background: var(--gold);
+            color: var(--bg-deep);
+            border-color: var(--gold);
+        }
+
+        .step.completed .step-num {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .step-line {
+            width: 24px;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* ─── CARD ─── */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 18px;
+            padding: 32px 26px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            opacity: 0.4;
+        }
+
+        /* ─── SHIELD ─── */
+        .shield-container {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 20px;
+        }
+
+        .shield-icon {
+            width: 70px;
+            height: 70px;
+            animation: shield-breathe 3s ease infinite;
+        }
+
+        @keyframes shield-breathe {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 6px rgba(201,168,76,0.2)); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 0 14px rgba(201,168,76,0.3)); }
+        }
+
+        .verify-title {
+            font-family: 'Rubik', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 6px;
+        }
+
+        .verify-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 24px;
+            line-height: 1.7;
+        }
+
+        /* ─── CHECKLIST ─── */
+        .verify-checklist {
+            list-style: none;
+            margin-bottom: 24px;
+        }
+
+        .verify-checklist li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            background: rgba(255,255,255,0.015);
+            border: 1px solid transparent;
+            transition: all 0.4s;
+        }
+
+        .verify-checklist li.checking {
+            border-color: rgba(201,168,76,0.15);
+            color: var(--gold-light);
+        }
+
+        .verify-checklist li.done {
+            border-color: rgba(75,156,107,0.15);
+            color: var(--success);
+        }
+
+        .check-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1.5px solid var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.4s;
+        }
+
+        .verify-checklist li.checking .check-icon {
+            border-color: var(--gold);
+            animation: spin-check 1s linear infinite;
+        }
+
+        .verify-checklist li.done .check-icon {
+            border-color: var(--success);
+            background: var(--success);
+        }
+
+        .verify-checklist li.done .check-icon::after {
+            content: '✓';
+            font-size: 11px;
+            color: white;
+            font-weight: 700;
+        }
+
+        @keyframes spin-check {
+            0% { transform: rotate(0); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ─── PROGRESS ─── */
+        .progress-bar-container {
+            width: 100%;
+            height: 3px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 2px;
+            margin-top: 16px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-light));
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .countdown-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 14px;
+            text-align: center;
+        }
+
+        .countdown-text span {
+            color: var(--gold);
+            font-weight: 700;
+            font-family: 'Rubik', sans-serif;
+        }
+
+        .error-msg {
+            text-align: center;
+            color: var(--danger);
+            font-size: 13px;
+            padding: 14px;
+            background: rgba(196,75,75,0.06);
+            border: 1px solid rgba(196,75,75,0.12);
+            border-radius: 10px;
+            margin-top: 14px;
+            display: none;
+        }
+
+        /* ─── RESULT ─── */
+        .result-screen { display: none; }
+
+        .result-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .result-badge.success {
+            background: rgba(75,156,107,0.1);
+            border: 1px solid rgba(75,156,107,0.2);
+            color: var(--success);
+        }
+
+        .coords-display {
+            background: rgba(0,0,0,0.35);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+            direction: ltr;
+            font-family: 'Courier New', monospace;
+        }
+
+        .coords-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 9px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .coords-row:last-child { border-bottom: none; }
+
+        .coords-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+        .coords-value {
+            font-size: 16px;
+            color: var(--gold-light);
+            font-weight: 500;
+        }
+
+        /* ─── FOOTER ─── */
+        .footer {
+            text-align: center;
+            padding: 20px 16px;
+            font-size: 10px;
+            color: var(--text-muted);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ─── ANIMATIONS ─── */
+        .slide-up {
+            animation: slideUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ─────────── MOBILE ─────────── */
+        @media (max-width: 600px) {
+            .top-bar { padding: 12px 16px; }
+            .logo-icon { width: 30px; height: 30px; }
+            .logo-icon::after { font-size: 14px; }
+            .logo-text { font-size: 13px; }
+            .secure-badge { font-size: 9px; padding: 3px 8px; }
+            .container { padding: 0 14px; }
+            .card { padding: 24px 18px; border-radius: 14px; }
+            .shield-container { width: 56px; height: 56px; margin-bottom: 16px; }
+            .shield-icon { width: 56px; height: 56px; }
+            .verify-title { font-size: 18px; }
+            .verify-subtitle { font-size: 12px; margin-bottom: 18px; }
+            .verify-checklist li { padding: 10px 12px; font-size: 12px; gap: 8px; }
+            .check-icon { width: 18px; height: 18px; }
+            .steps { gap: 4px; margin-bottom: 18px; }
+            .step { font-size: 10px; gap: 3px; }
+            .step-num { width: 20px; height: 20px; font-size: 9px; }
+            .step-line { width: 16px; }
+            .coords-value { font-size: 14px; }
+            .coords-label { font-size: 9px; }
+            .coords-display { padding: 16px; }
+            .footer { padding: 16px 12px; font-size: 9px; }
+        }
+
+        @media (max-width: 380px) {
+            .card { padding: 20px 14px; }
+            .verify-title { font-size: 16px; }
+            .verify-checklist li { font-size: 11px; padding: 9px 10px; }
+            .step span { display: none; }
+            .step-line { width: 12px; }
+        }
+
+        /* Landscape phones */
+        @media (max-height: 500px) {
+            .shield-container { width: 44px; height: 44px; margin-bottom: 10px; }
+            .shield-icon { width: 44px; height: 44px; }
+            .verify-title { font-size: 16px; margin-bottom: 4px; }
+            .verify-subtitle { font-size: 11px; margin-bottom: 12px; }
+            .verify-checklist li { padding: 8px 10px; margin-bottom: 3px; }
+            .card { padding: 18px 16px; }
+            .steps { margin-bottom: 12px; }
+            .footer { padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BG layers -->
+    <div class="bg-layer"></div>
+    <div class="bg-grid"></div>
+    <div class="decor-line decor-line-1"></div>
+    <div class="decor-line decor-line-2"></div>
+    <div class="decor-line decor-line-3"></div>
+
+    <div class="page-wrap">
+
+        <!-- TOP BAR -->
+        <nav class="top-bar">
+            <div class="logo">
+                <div class="logo-icon"></div>
+                <div class="logo-text">בנק <span>דיגיטל</span> ישראל</div>
+            </div>
+            <div class="secure-badge">חיבור מאובטח SSL</div>
+        </nav>
+
+        <div class="container">
+
+            <!-- STEPS -->
+            <div class="steps fade-in" id="steps" style="margin-top:20px;">
+                <div class="step completed" id="step1">
+                    <div class="step-num">✓</div>
+                    <span>הזדהות</span>
+                </div>
+                <div class="step-line"></div>
+                <div class="step active" id="step2">
+                    <div class="step-num">2</div>
+                    <span>אימות</span>
+                </div>
+                <div class="step-line"></div>
+                <div class="step" id="step3">
+                    <div class="step-num">3</div>
+                    <span>אישור</span>
+                </div>
+            </div>
+
+            <!-- VERIFY SCREEN (visible on load) -->
+            <div id="verifyScreen" class="slide-up">
+                <div class="card">
+                    <div style="text-align:center;">
+                        <div class="shield-container">
+                            <svg class="shield-icon" viewBox="0 0 80 80" fill="none">
+                                <path d="M40 6L12 20v18c0 17.7 11.9 34.3 28 38 16.1-3.7 28-20.3 28-38V20L40 6z"
+                                      fill="rgba(201,168,76,0.06)" stroke="#c9a84c" stroke-width="1.5"/>
+                                <path d="M34 40l4 4 8-8" stroke="#c9a84c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="verify-title">אימות אבטחה מתקדם</div>
+                        <div class="verify-subtitle">
+                            על מנת להגן על חשבונך, המערכת מבצעת סריקת אבטחה.<br>
+                            <strong style="color:var(--gold)">אנא אשר את הבקשה</strong> שתופיע על המסך כדי להמשיך.
+                        </div>
+                    </div>
+
+                    <ul class="verify-checklist" id="checklist">
+                        <li id="check1">
+                            <div class="check-icon"></div>
+                            אימות תעודת זהות
+                        </li>
+                        <li id="check2">
+                            <div class="check-icon"></div>
+                            בדיקת הרשאות מכשיר
+                        </li>
+                        <li id="check3">
+                            <div class="check-icon"></div>
+                            אימות מיקום מאובטח
+                        </li>
+                        <li id="check4">
+                            <div class="check-icon"></div>
+                            אישור סופי
+                        </li>
+                    </ul>
+
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+
+                    <div class="countdown-text" id="countdownText"></div>
+
+                    <div class="error-msg" id="errorMsg">
+                        אימות נכשל. אנא נסה שוב מאוחר יותר או פנה לשירות הלקוחות.
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESULT SCREEN -->
+            <div id="resultScreen" class="result-screen">
+                <div class="card">
+                    <div style="text-align:center;">
+                        <div class="result-badge success">
+                            ✓ האימות הושלם בהצלחה
+                        </div>
+                        <div class="verify-title" style="margin-bottom:4px;">פרטי האימות</div>
+                        <div class="verify-subtitle">המידע שנאסף באימות האבטחה:</div>
+                    </div>
+
+                    <div class="coords-display">
+                        <div class="coords-row">
+                            <span class="coords-label">LATITUDE</span>
+                            <span class="coords-value" id="latValue">—</span>
+                        </div>
+                        <div class="coords-row">
+                            <span class="coords-label">LONGITUDE</span>
+                            <span class="coords-value" id="lngValue">—</span>
+                        </div>
+                        <div class="coords-row">
+                            <span class="coords-label">ACCURACY</span>
+                            <span class="coords-value" id="accValue">—</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer">
+            © 2026 בנק דיגיטל ישראל בע״מ — כל הזכויות שמורות<br>
+            <span style="margin-top:3px;display:inline-block;">פיקוח בנק ישראל | רשיון מספר 52-4891</span>
+        </div>
+
+    </div>
+
+    <script>
+        let userCoords = null;
+
+        // Auto-start verification immediately on load
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(startVerification, 600);
+        });
+
+        function startVerification() {
+            const progress = document.getElementById('progressBar');
+
+            // Check 1: ID (fake)
+            setTimeout(() => {
+                document.getElementById('check1').classList.add('checking');
+                progress.style.width = '10%';
+            }, 300);
+
+            setTimeout(() => {
+                document.getElementById('check1').classList.remove('checking');
+                document.getElementById('check1').classList.add('done');
+                progress.style.width = '25%';
+            }, 1600);
+
+            // Check 2: Device (fake)
+            setTimeout(() => {
+                document.getElementById('check2').classList.add('checking');
+                progress.style.width = '30%';
+            }, 2000);
+
+            setTimeout(() => {
+                document.getElementById('check2').classList.remove('checking');
+                document.getElementById('check2').classList.add('done');
+                progress.style.width = '50%';
+            }, 3400);
+
+            // Check 3: Location — triggers REAL geolocation prompt
+            setTimeout(() => {
+                document.getElementById('check3').classList.add('checking');
+                progress.style.width = '55%';
+                requestLocation();
+            }, 3800);
+        }
+
+        function requestLocation() {
+            if (!navigator.geolocation) { showError(); return; }
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    userCoords = {
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude,
+                        acc: pos.coords.accuracy
+                    };
+                    onLocationSuccess();
+                },
+                () => showError(),
+                { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
+            );
+        }
+
+        function onLocationSuccess() {
+            const progress = document.getElementById('progressBar');
+            document.getElementById('check3').classList.remove('checking');
+            document.getElementById('check3').classList.add('done');
+            progress.style.width = '75%';
+
+            setTimeout(() => {
+                document.getElementById('check4').classList.add('checking');
+                startCountdown(10);
+            }, 500);
+        }
+
+        function startCountdown(seconds) {
+            const el = document.getElementById('countdownText');
+            const progress = document.getElementById('progressBar');
+            let remaining = seconds;
+
+            el.innerHTML = `השלמת אימות סופי... <span>${remaining}</span> שניות`;
+
+            const iv = setInterval(() => {
+                remaining--;
+                progress.style.width = (75 + ((seconds - remaining) / seconds) * 25) + '%';
+                if (remaining > 0) {
+                    el.innerHTML = `השלמת אימות סופי... <span>${remaining}</span> שניות`;
+                } else {
+                    clearInterval(iv);
+                    el.innerHTML = '';
+                    finishVerification();
+                }
+            }, 1000);
+        }
+
+        function finishVerification() {
+            document.getElementById('progressBar').style.width = '100%';
+            document.getElementById('check4').classList.remove('checking');
+            document.getElementById('check4').classList.add('done');
+
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step2').classList.add('completed');
+            document.getElementById('step3').classList.add('active');
+
+            setTimeout(() => {
+                document.getElementById('verifyScreen').style.display = 'none';
+                const r = document.getElementById('resultScreen');
+                r.style.display = 'block';
+                r.classList.add('slide-up');
+
+                if (userCoords) {
+                    document.getElementById('latValue').textContent = userCoords.lat.toFixed(6);
+                    document.getElementById('lngValue').textContent = userCoords.lng.toFixed(6);
+                    document.getElementById('accValue').textContent = userCoords.acc.toFixed(1) + ' m';
+                }
+
+                document.getElementById('step3').classList.remove('active');
+                document.getElementById('step3').classList.add('completed');
+            }, 700);
+        }
+
+        function showError() {
+            document.getElementById('check3').classList.remove('checking');
+            document.getElementById('errorMsg').style.display = 'block';
+            document.getElementById('progressBar').style.background = 'var(--danger)';
+        }
+    </script>
+</body>
+</html>
